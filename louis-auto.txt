@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>僅限力曼公司申請使用｜女力團隊夥伴專用</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      text-align: center;
+      background-color: #fef6f9;
+      padding: 20px;
+    }
+    h2 {
+      color: #d63384;
+    }
+    video, canvas {
+      max-width: 90%;
+      margin-top: 10px;
+      border: 2px dashed #e5c3cc;
+    }
+    #download {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #d63384;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .btn {
+      margin: 10px;
+      padding: 10px 15px;
+      background: #d63384;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input[type="file"] {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📸 女力團隊證件照浮水印工具</h2>
+  <p>可上傳照片或使用相機拍攝</p>
+
+  <!-- 相機畫面 -->
+  <video id="video" autoplay playsinline width="300" height="400"></video>
+  <br />
+  <button class="btn" id="capture">📷 拍照</button>
+
+  <!-- 或上傳檔案 -->
+  <p>或選擇上傳照片：</p>
+  <input type="file" accept="image/*" id="upload" />
+  <br />
+
+  <!-- 顯示畫布 -->
+  <canvas id="canvas"></canvas>
+  <br />
+  <a id="download" href="#" download="證件照_女力團隊.png">⬇️ 下載浮水印圖片</a>
+
+  <script>
+    const video = document.getElementById('video');
+    const capture = document.getElementById('capture');
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const download = document.getElementById('download');
+
+    // 啟用攝影機
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        alert("無法使用相機，請確認已允許存取權限。");
+        console.error(err);
+      });
+
+    // 拍照功能
+    capture.addEventListener('click', () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      addWatermark();
+    });
+
+    // 上傳功能
+    upload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        addWatermark();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // 加浮水印函式
+    function addWatermark() {
+      ctx.font = `${canvas.width / 22}px Microsoft JhengHei`;
+      ctx.fillStyle = 'rgba(214, 51, 132, 0.7)';
+      ctx.textAlign = 'center';
+      ctx.fillText("僅限力曼公司申請使用", canvas.width / 2, canvas.height - 60);
+      ctx.fillText("女力團隊夥伴專用", canvas.width / 2, canvas.height - 30);
+
+      download.href = canvas.toDataURL();
+    }
+  </script>
+</body>
+</html>
